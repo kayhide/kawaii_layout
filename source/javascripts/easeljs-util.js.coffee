@@ -18,6 +18,12 @@ createjs.Point::distanceTo = (pt) ->
 createjs.Point::isZero = ->
   @x == 0 and @y == 0
 
+createjs.Point::length = ->
+  Math.sqrt(Math.pow(@x, 2) + Math.pow(@y, 2))
+
+createjs.Point::regularize = ->
+  @scale(1 / @length())
+
 createjs.Rectangle.createEmpty = ->
   rect = new createjs.Rectangle()
   rect.empty = true
