@@ -15,6 +15,11 @@ html
           .navbar-header
             = link_to 'index.html', class: 'navbar-brand' do
               = site_title
+          .nav.navbar-nav
+            li class=((current_page.path =~ /index/) ? 'active' : '')
+              = link_to '普通', 'index.html'
+            li class=((current_page.path =~ /levitate/) ? 'active' : '')
+              = link_to '浮上', 'levitate.html'
     .container
       .row
         .col-md-12

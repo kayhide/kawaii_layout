@@ -77,6 +77,12 @@ createjs.Rectangle::getCornerPoints = ->
 createjs.Rectangle::getCenter = ->
   new createjs.Point(@x + @width / 2, @y + @height / 2)
 
+createjs.Rectangle::getRight = ->
+  @x + @width
+
+createjs.Rectangle::getBottom = ->
+  @y + @height
+
 createjs.Rectangle::inflate = (offset) ->
   @x -= offset
   @y -= offset
