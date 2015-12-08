@@ -3,10 +3,10 @@ $ ->
     return
 
   arts_count = 6
-  bond_order = 6
+  bond_order = 3
   bond_length = 1.2
   bond_factor = 0.05
-  repulsion_factor = 0.1
+  repulsion_factor = 0
   friction = 0.9
   radius_min = 40
   radius_max = 80
