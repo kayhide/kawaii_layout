@@ -36,7 +36,7 @@ $ ->
       art.force = new createjs.Point(0, 0)
       art.snapToPixel = true
       art.cache(-art.radius, -art.radius, art.radius * 2, art.radius * 2)
-      for bonding_art in arts[(arts.length - bond_order)..]
+      for bonding_art in arts.slice(Math.max(0, arts.length - bond_order))
         canvas.addBondFor(art, bonding_art)
       arts.push(art)
       stage.addChild(art)
