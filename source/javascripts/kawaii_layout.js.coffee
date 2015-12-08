@@ -1,8 +1,9 @@
 $ ->
-  arts_count = 3
-  bond_order = 3
+  arts_count = 6
+  bond_order = 6
   bond_length = 1.2
-  bond_factor = 0.01
+  bond_factor = 0.05
+  repulsion_factor = 0.1
   friction = 0.9
   radius_min = 40
   radius_max = 80
@@ -10,6 +11,9 @@ $ ->
   $('#add-art').on 'click', (e)->
     for canvas in $('canvas')
       canvas.addArt()
+  $('#toggle-show-bonds').on 'click', (e)->
+    for canvas in $('canvas')
+      canvas.toggleShowBonds()
 
   for canvas in $('canvas')
     elm = $(canvas)
@@ -20,6 +24,7 @@ $ ->
     colors = ["#828b20", "#b0ac31", "#cbc53d", "#fad779", "#f9e4ad", "#faf2db", "#563512", "#9b4a0b", "#d36600", "#fe8a00", "#f9a71f"]
     arts = []
     bonds = []
+    showBonds = false
 
     canvas.addArt = ()->
       art = new createjs.Shape()
@@ -42,11 +47,21 @@ $ ->
       stage.addChild(art)
       art
 
+    canvas.toggleShowBonds = ()->
+      showBonds = !showBonds
+      if !showBonds
+        for bond in bonds
+          bond.shape.graphics.clear()
+
     canvas.addBondFor = (art0, art1)->
+      shape = new createjs.Shape()
       bonds.push(
         arts: [art0, art1]
         length: (art0.radius + art1.radius) * bond_length
+        shape: shape
       )
+      stage.addChild(shape)
+
 
     for i in [0...arts_count]
       canvas.addArt()
@@ -59,7 +74,7 @@ $ ->
         vec = art1.position().subtract(art0.position())
         len = vec.length()
         dir = vec.scale(1 / len)
-        f = dir.scale((len - bond.length) * bond_factor)
+        f = dir.scale(-repulsion_factor / len * len + (len - bond.length) * bond_factor)
         art0.force = art0.force.add(f)
         art1.force = art1.force.add(f.scale(-1))
       for art in arts
@@ -70,4 +85,8 @@ $ ->
         pt = art.position().add(art.velocity)
         art.x = pt.x
         art.y = pt.y
+      if showBonds
+        for bond in bonds
+          bond.shape.graphics.clear().beginStroke('#333')
+          .moveTo(bond.arts[0].x, bond.arts[0].y).lineTo(bond.arts[1].x, bond.arts[1].y).endStroke()
       stage.update(event)
