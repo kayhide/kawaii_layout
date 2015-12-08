@@ -1,3 +1,7 @@
 @charset "utf-8";
 @import "bootstrap-sprockets";
 @import "bootstrap";
+
+canvas {
+    border: solid 1px $gray;
+}
