@@ -1,14 +1,18 @@
 $ ->
-  unless canvas = $('canvas#tumtum')[0]
-    return
+  return unless canvas = $('canvas#tumtum')[0]
 
   arts_count = 2
   radius_min = 40
   radius_max = 80
 
+  images = false
   debug = false
 
   stage = new createjs.Stage(canvas)
+  arts_layer = new createjs.Container
+  images_layer = new createjs.Container
+  stage.addChild(arts_layer)
+
   bodies = []
 
   b2Vec2    = Box2D.Common.Math.b2Vec2
@@ -60,8 +64,19 @@ $ ->
     body.CreateFixture(fixDef)
     bodies.push body
 
-    body.actor = new Baumkuchen(radius)
-    stage.addChild(body.actor)
+    body.actors = [new Baumkuchen(radius), new ArtImage(radius)]
+    arts_layer.addChild(body.actors[0])
+    images_layer.addChild(body.actors[1])
+
+  canvas.toggleImages = ()->
+    images = !images
+    if images
+      arts_layer.remove()
+      stage.addChildAt(images_layer, 0)
+    else
+      stage.addChildAt(arts_layer, 0)
+      images_layer.remove()
+    images
 
   canvas.toggleDebug = ()->
     debug = !debug
@@ -85,9 +100,9 @@ $ ->
       for body in bodies
         p = body.GetPosition()
         if p && p.x? && p.y?
-          actor = body.actor
-          actor.x = p.x * SCALE
-          actor.y = p.y * SCALE
+          for actor in body.actors
+            actor.x = p.x * SCALE
+            actor.y = p.y * SCALE
       stage.update(event)
 
 

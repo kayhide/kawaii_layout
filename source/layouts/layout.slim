@@ -23,7 +23,8 @@ html
             li class=((current_page.path =~ /tumtum/) ? 'active' : '')
               = link_to 'とぅむとぅむ', 'tumtum.html'
           .nav.navbar-right
-            button#add-art.btn.btn-primary.navbar-btn Add
+            button#add-art.btn.btn-success.navbar-btn Add
+            button#toggle-images.btn.btn-primary.navbar-btn Images
             button#toggle-debug.btn.btn-info.navbar-btn Debug
 
     .container
@@ -32,5 +33,5 @@ html
           = yield
     hr
     footer.container
-      p &copy; kayhide 2015
-
+      p &copy; kayhide 2015 hogehog
+    = partial 'layouts/art_images'
