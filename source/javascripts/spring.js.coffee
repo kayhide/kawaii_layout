@@ -1,4 +1,7 @@
 $ ->
+  unless canvas = $('canvas#spring')[0]
+    return
+
   arts_count = 6
   bond_order = 6
   bond_length = 1.2
@@ -8,10 +11,6 @@ $ ->
   radius_min = 40
   radius_max = 80
 
-  canvas = $('canvas#spring')[0]
-  unless canvas
-    return
-
   elm = $(canvas)
   gravity = new createjs.Point(elm.data('gravity-x'), elm.data('gravity-y'))
 
@@ -19,7 +18,7 @@ $ ->
 
   arts = []
   bonds = []
-  showBonds = false
+  debug = false
 
   canvas.addArt = ()->
     radius = Math.floor(Math.random() * (radius_max - radius_min) + radius_min)
@@ -33,11 +32,12 @@ $ ->
     stage.addChild(art)
     art
 
-  canvas.toggleShowBonds = ()->
-    showBonds = !showBonds
-    if !showBonds
+  canvas.toggleDebug = ()->
+    debug = !debug
+    unless debug
       for bond in bonds
         bond.shape.graphics.clear()
+    debug
 
   canvas.addBondFor = (art0, art1)->
     shape = new createjs.Shape()
@@ -71,7 +71,7 @@ $ ->
       pt = art.position().add(art.velocity)
       art.x = pt.x
       art.y = pt.y
-    if showBonds
+    if debug
       for bond in bonds
         bond.shape.graphics.clear().beginStroke('#333')
         .moveTo(bond.arts[0].x, bond.arts[0].y).lineTo(bond.arts[1].x, bond.arts[1].y).endStroke()

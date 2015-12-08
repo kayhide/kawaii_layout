@@ -17,9 +17,15 @@ html
               = site_title
           .nav.navbar-nav
             li class=((current_page.path =~ /index/) ? 'active' : '')
-              = link_to '普通', 'index.html'
+              = link_to 'ばね', 'index.html'
             li class=((current_page.path =~ /levitate/) ? 'active' : '')
-              = link_to '浮上', 'levitate.html'
+              = link_to 'ばね浮上', 'levitate.html'
+            li class=((current_page.path =~ /tumtum/) ? 'active' : '')
+              = link_to 'とぅむとぅむ', 'tumtum.html'
+          .nav.navbar-right
+            button#add-art.btn.btn-primary.navbar-btn Add
+            button#toggle-debug.btn.btn-info.navbar-btn Debug
+
     .container
       .row
         .col-md-12

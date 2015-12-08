@@ -1,8 +1,11 @@
 $ ->
   $('#add-art').on 'click', (e)->
-    for canvas in $('canvas')
-      canvas.addArt()
+    if canvas = $('canvas')[0]
+      canvas.addArt?()
 
-  $('#toggle-show-bonds').on 'click', (e)->
-    for canvas in $('canvas')
-      canvas.toggleShowBonds()
+  $('#toggle-debug').on 'click', (e)->
+    if canvas = $('canvas')[0]
+      if canvas.toggleDebug?()
+        $(@).addClass('active')
+      else
+        $(@).removeClass('active')
