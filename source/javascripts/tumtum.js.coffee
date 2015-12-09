@@ -50,6 +50,13 @@ $ ->
     fixDef.shape.SetAsBox(w, height / 2)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
+  canvas.addActors = (body)->
+    sorted_bodies = bodies.slice().sort (x, y)->
+      -(x.radius - y.radius)
+    i = sorted_bodies.indexOf(body)
+    arts_layer.addChildAt(body.actors[0], i)
+    images_layer.addChildAt(body.actors[1], i)
+
   canvas.addArt = ()->
     radius = Math.floor(Math.random() * (radius_max - radius_min) + radius_min)
     bodyDef = new b2BodyDef
@@ -64,9 +71,9 @@ $ ->
     body.CreateFixture(fixDef)
     bodies.push body
 
+    body.radius = radius
     body.actors = [new Baumkuchen(radius), new ArtImage(radius)]
-    arts_layer.addChild(body.actors[0])
-    images_layer.addChild(body.actors[1])
+    canvas.addActors(body)
 
   canvas.toggleImages = ()->
     images = !images

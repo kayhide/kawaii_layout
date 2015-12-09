@@ -25,6 +25,13 @@ $ ->
   arts = []
   bonds = []
 
+  canvas.addActors = (art)->
+    sorted_arts = arts.slice().sort (x, y)->
+      -(x.radius - y.radius)
+    i = sorted_arts.indexOf(art)
+    arts_layer.addChildAt(art.actors[0], i)
+    images_layer.addChildAt(art.actors[1], i)
+
   canvas.addArt = ()->
     radius = Math.floor(Math.random() * (radius_max - radius_min) + radius_min)
     art = {
@@ -41,8 +48,7 @@ $ ->
     for bonding_art in arts.slice(Math.max(0, arts.length - bond_order))
       canvas.addBondFor(art, bonding_art)
     arts.push(art)
-    arts_layer.addChild(art.actors[0])
-    images_layer.addChild(art.actors[1])
+    canvas.addActors(art)
     art
 
   canvas.toggleImages = ()->
