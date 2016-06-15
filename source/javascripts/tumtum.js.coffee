@@ -1,9 +1,9 @@
 $ ->
   return unless canvas = $('canvas#tumtum')[0]
 
-  arts_count = 2
-  radius_min = 40
-  radius_max = 80
+  arts_count = 10
+  radius_min = 50
+  radius_max = 100
 
   images = false
   debug = false
@@ -24,8 +24,11 @@ $ ->
   b2CircleShape   = Box2D.Collision.Shapes.b2CircleShape
   b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 
-  world = new b2World(new b2Vec2(0, -10), true)
-  SCALE = 40
+  elm = $(canvas)
+  gravity = new b2Vec2(elm.data('gravity-x'), elm.data('gravity-y'))
+
+  world = new b2World(gravity, true)
+  SCALE = canvas.width
   width = canvas.width / SCALE
   height = canvas.height / SCALE
 
@@ -38,15 +41,15 @@ $ ->
     fixDef.shape = new b2PolygonShape
 
     w = 0.1
-    bodyDef.position.Set(width / 2, 0)
+    bodyDef.position.Set(width / 2, -w)
     fixDef.shape.SetAsBox(width / 2, w)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
-    bodyDef.position.Set(w, height / 2)
-    fixDef.shape.SetAsBox(0, height / 2)
+    bodyDef.position.Set(-w, height / 2)
+    fixDef.shape.SetAsBox(w, height / 2)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
-    bodyDef.position.Set(width, height / 2)
+    bodyDef.position.Set(width + w, height / 2)
     fixDef.shape.SetAsBox(w, height / 2)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
@@ -80,7 +83,7 @@ $ ->
     if images
       arts_layer.remove()
       stage.addChildAt(images_layer, 0)
-    else
+    else 
       stage.addChildAt(arts_layer, 0)
       images_layer.remove()
     images

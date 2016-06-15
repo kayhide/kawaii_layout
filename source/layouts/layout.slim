@@ -11,7 +11,7 @@ html
   body
     header
       .navbar.navbar-default
-        .container
+        .container-fluid
           .navbar-header
             = link_to 'index.html', class: 'navbar-brand' do
               = site_title
@@ -27,10 +27,8 @@ html
             button#toggle-images.btn.btn-primary.navbar-btn Images
             button#toggle-debug.btn.btn-info.navbar-btn Debug
 
-    .container
-      .row
-        .col-md-12
-          = yield
+    .container-fluid
+      = yield
     hr
     footer.container
       p &copy; kayhide 2015
