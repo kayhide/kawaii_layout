@@ -113,11 +113,14 @@ $ ->
     false
 
   canvas.dump = ()->
-    data = for body in bodies
-      position:
-        x: body.GetPosition().x
-        y: body.GetPosition().y
+    elements = for body in bodies
+      x: body.GetPosition().x
+      y: body.GetPosition().y
       radius: body.radius
+    data = {
+      count: elements.length
+      elements: elements
+    }
     $('#output').text(JSON.stringify(data))
 
   createjs.Ticker.timingMode = createjs.Ticker.RAF
