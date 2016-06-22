@@ -1,4 +1,9 @@
 $ ->
+  $('[data-action]').on 'click', (e)->
+    action = $(@).data('action')
+    for canvas in $('canvas')
+      canvas[action]($('form'))
+
   $('#add-art').on 'click', (e)->
     if canvas = $('canvas')[0]
       canvas.addArt?()
@@ -16,6 +21,10 @@ $ ->
         $(@).addClass('active')
       else
         $(@).removeClass('active')
+
+  $('#reset').on 'click', (e)->
+    if canvas = $('canvas')[0]
+      canvas.reset?()
 
 @ArtImages = []
 $ =>

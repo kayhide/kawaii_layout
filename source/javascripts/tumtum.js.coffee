@@ -2,8 +2,8 @@ $ ->
   return unless canvas = $('canvas#tumtum')[0]
 
   arts_count = 10
-  radius_min = 50
-  radius_max = 100
+  radius_min = 0.10
+  radius_max = 0.35
 
   images = false
   debug = false
@@ -45,12 +45,12 @@ $ ->
     fixDef.shape.SetAsBox(width / 2, w)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
-    bodyDef.position.Set(-w, height / 2)
-    fixDef.shape.SetAsBox(w, height / 2)
+    bodyDef.position.Set(-w, 100 * height / 2)
+    fixDef.shape.SetAsBox(w, 100 * height / 2)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
-    bodyDef.position.Set(width + w, height / 2)
-    fixDef.shape.SetAsBox(w, height / 2)
+    bodyDef.position.Set(width + w, 100 * height / 2)
+    fixDef.shape.SetAsBox(w, 100 * height / 2)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
 
   canvas.addActors = (body)->
@@ -61,10 +61,10 @@ $ ->
     images_layer.addChildAt(body.actors[1], i)
 
   canvas.addArt = ()->
-    radius = Math.floor(Math.random() * (radius_max - radius_min) + radius_min)
+    radius = Math.random() * (radius_max - radius_min) + radius_min
     bodyDef = new b2BodyDef
     bodyDef.type = b2Body.b2_dynamicBody
-    fixDef.shape = new b2CircleShape(0.8 * radius / SCALE)
+    fixDef.shape = new b2CircleShape(0.8 * radius)
 
     bodyDef.position.Set(
       width * (0.1 + Math.random() * 0.8),
@@ -75,15 +75,19 @@ $ ->
     bodies.push body
 
     body.radius = radius
-    body.actors = [new Baumkuchen(radius), new ArtImage(radius)]
+    body.actors = [new ArtImage(radius * SCALE), new Baumkuchen(radius * SCALE)]
     canvas.addActors(body)
+
+  canvas.addArt10 = ()->
+    for i in [1..10]
+      canvas.addArt()
 
   canvas.toggleImages = ()->
     images = !images
     if images
       arts_layer.remove()
       stage.addChildAt(images_layer, 0)
-    else 
+    else
       stage.addChildAt(arts_layer, 0)
       images_layer.remove()
     images
@@ -100,6 +104,22 @@ $ ->
       world.SetDebugDraw(@debugDraw)
     debug
 
+  canvas.reset = ()->
+    for body in bodies
+      world.DestroyBody(body)
+      arts_layer.removeChild(body.actors[0])
+      images_layer.removeChild(body.actors[1])
+    bodies = []
+    false
+
+  canvas.dump = ()->
+    data = for body in bodies
+      position:
+        x: body.GetPosition().x
+        y: body.GetPosition().y
+      radius: body.radius
+    $('#output').text(JSON.stringify(data))
+
   createjs.Ticker.timingMode = createjs.Ticker.RAF
   createjs.Ticker.addEventListener "tick", (event)->
     world.Step(1/60, 3, 3)
@@ -114,7 +134,6 @@ $ ->
             actor.x = p.x * SCALE
             actor.y = p.y * SCALE
       stage.update(event)
-
 
   for i in [0...arts_count]
     canvas.addArt()

@@ -2,5 +2,21 @@
 title: Kawaii Layout
 ---
 .row
-  .col-sm-8
-    canvas#tumtum width="400" height="640" data-gravity-y="-2.0"
+  .col-sm-6
+    canvas#tumtum width="400" height="6400" data-gravity-y="-2.0"
+  .col-sm-6
+    form
+      / .form-group
+      /   label.control-label 数
+      /   input.form-control name="count" value="3"
+      / .form-group
+      /   label.control-label 半径
+      /   input.form-control name="radius" value="0.3"
+    .form-group
+        button.btn.btn-success data-action="addArt" Add
+        button.btn.btn-success data-action="addArt10" Add10
+        button.btn.btn-default data-action="reset" Reset
+        button.btn.btn-default data-action="dump" Dump
+    .form-group
+      label.control-label 出力
+      textarea#output.form-control name="output" rows="20"
