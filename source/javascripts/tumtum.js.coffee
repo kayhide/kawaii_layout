@@ -35,6 +35,8 @@ $ ->
   fixDef = new b2FixtureDef
   fixDef.density = 1.0
 
+  $artsCount = $('#arts-count')
+
   do ->
     bodyDef = new b2BodyDef
     bodyDef.type = b2Body.b2_staticBody
@@ -52,6 +54,9 @@ $ ->
     bodyDef.position.Set(width + w, 100 * height / 2)
     fixDef.shape.SetAsBox(w, 100 * height / 2)
     world.CreateBody(bodyDef).CreateFixture(fixDef)
+
+  canvas.showArtsCount = ->
+    $artsCount.text bodies.length
 
   canvas.addActors = (body)->
     sorted_bodies = bodies.slice().sort (x, y)->
@@ -77,6 +82,7 @@ $ ->
     body.radius = radius
     body.actors = [new ArtImage(radius * SCALE), new Baumkuchen(radius * SCALE)]
     canvas.addActors(body)
+    canvas.showArtsCount()
 
   canvas.addArt10 = ()->
     for i in [1..10]
@@ -110,6 +116,7 @@ $ ->
       arts_layer.removeChild(body.actors[0])
       images_layer.removeChild(body.actors[1])
     bodies = []
+    canvas.showArtsCount()
     false
 
   canvas.dump = ()->
