@@ -77,10 +77,10 @@ $ ->
     )
     body = world.CreateBody(bodyDef)
     body.CreateFixture(fixDef)
-    bodies.push body
+    i = bodies.push body
 
     body.radius = radius
-    body.actors = [new ArtImage(radius * SCALE), new Baumkuchen(radius * SCALE)]
+    body.actors = [new ArtImage(radius * SCALE, i), new Baumkuchen(radius * SCALE)]
     canvas.addActors(body)
     canvas.showArtsCount()
 
