@@ -125,11 +125,8 @@ $ ->
     $artsCount.text bodies.length
 
   canvas.addActors = (body)->
-    sorted_bodies = bodies.slice().sort (x, y)->
-      -(x.radius - y.radius)
-    i = sorted_bodies.indexOf(body)
-    arts_layer.addChildAt(body.actors[0], i)
-    images_layer.addChildAt(body.actors[1], i)
+    arts_layer.addChild(body.actors[0])
+    images_layer.addChild(body.actors[1])
 
   canvas.addArt = ()->
     radius = Math.random() * (radius_max - radius_min) + radius_min
@@ -137,9 +134,11 @@ $ ->
     bodyDef.type = b2Body.b2_dynamicBody
     fixDef.shape = new b2CircleShape(0.8 * radius)
 
+    ys = (body.GetPosition().y + body.radius for body in bodies when body.GetPosition().y isnt NaN)
+    y = if (ys.length > 0) then Math.max.apply(null, ys) else radius
     bodyDef.position.Set(
       width * (0.1 + Math.random() * 0.8),
-      height + Math.random()
+      y
     )
     body = world.CreateBody(bodyDef)
     body.CreateFixture(fixDef)
