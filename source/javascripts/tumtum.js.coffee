@@ -23,6 +23,8 @@ $ ->
   b2PolygonShape  = Box2D.Collision.Shapes.b2PolygonShape
   b2CircleShape   = Box2D.Collision.Shapes.b2CircleShape
   b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+  b2AABB = Box2D.Collision.b2AABB
+  b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef
 
   elm = $(canvas)
   gravity = new b2Vec2(elm.data('gravity-x'), elm.data('gravity-y'))
@@ -37,23 +39,87 @@ $ ->
 
   $artsCount = $('#arts-count')
 
-  do ->
-    bodyDef = new b2BodyDef
-    bodyDef.type = b2Body.b2_staticBody
-    fixDef.shape = new b2PolygonShape
+  mousePoint = new b2Vec2()
+  mouseJoint = null
 
-    w = 0.1
-    bodyDef.position.Set(width / 2, -w)
-    fixDef.shape.SetAsBox(width / 2, w)
-    world.CreateBody(bodyDef).CreateFixture(fixDef)
+  boundary = do ->
+    boundaryDef = new b2BodyDef()
+    boundaryDef.type = b2Body.b2_staticBody
+    boundary = world.CreateBody(boundaryDef)
 
-    bodyDef.position.Set(-w, 100 * height / 2)
-    fixDef.shape.SetAsBox(w, 100 * height / 2)
-    world.CreateBody(bodyDef).CreateFixture(fixDef)
+    thickness = 0.1
+    wallHeight = 100 * height
 
-    bodyDef.position.Set(width + w, 100 * height / 2)
-    fixDef.shape.SetAsBox(w, 100 * height / 2)
-    world.CreateBody(bodyDef).CreateFixture(fixDef)
+    topDef = new b2FixtureDef
+    topDef.shape = new b2PolygonShape()
+    topDef.shape.SetAsOrientedBox(width/2, thickness, new b2Vec2(width/2, -thickness), 0)
+
+    leftDef = new b2FixtureDef
+    leftDef.shape = new b2PolygonShape()
+    leftDef.shape.SetAsOrientedBox(thickness, wallHeight, new b2Vec2(-thickness, 0), 0)
+
+    rightDef = new b2FixtureDef
+    rightDef.shape = new b2PolygonShape()
+    rightDef.shape.SetAsOrientedBox(thickness, wallHeight, new b2Vec2(width+thickness, 0), 0)
+
+    boundary.CreateFixture(topDef)
+    boundary.CreateFixture(leftDef)
+    boundary.CreateFixture(rightDef)
+
+    boundary
+
+
+  handleMouseDown = (event) ->
+    mouseX = event.stageX
+    mouseY = event.stageY
+    mousePoint.Set mouseX / SCALE, mouseY / SCALE
+    hitBody = getBodyAtMouse()
+    if hitBody
+      #if joint exists then create
+      def = new b2MouseJointDef()
+      def.bodyA = boundary
+      def.bodyB = hitBody
+      def.target = mousePoint
+      def.collideConnected = true
+      def.maxForce = 1000 * hitBody.GetMass()
+      def.dampingRatio = 0
+      mouseJoint = world.CreateJoint(def)
+
+      hitBody.SetAwake true
+    return
+
+  handleMouseMove = (event) ->
+    mouseX = event.stageX
+    mouseY = event.stageY
+    mousePoint.Set mouseX / SCALE, mouseY / SCALE
+    if mouseJoint
+      mouseJoint.SetTarget mousePoint
+    return
+
+  handleMouseUp = (event) ->
+    @onMouseMove = @onMouseUp = null
+    if mouseJoint
+      world.DestroyJoint mouseJoint
+      mouseJoint = false
+    return
+
+  getBodyAtMouse = (includeStatic) ->
+    body = null
+    aabb = new b2AABB()
+
+    getBodyCallback = (fixture) ->
+      shape = fixture.GetShape()
+      if fixture.GetBody().GetType() != b2Body.b2_staticBody or includeStatic
+        inside = shape.TestPoint(fixture.GetBody().GetTransform(), mousePoint)
+        if inside
+          body = fixture.GetBody()
+          return false
+      true
+
+    aabb.lowerBound.Set mousePoint.x - 0.001, mousePoint.y - 0.001
+    aabb.upperBound.Set mousePoint.x + 0.001, mousePoint.y + 0.001
+    world.QueryAABB getBodyCallback, aabb
+    body
 
   canvas.showArtsCount = ->
     $artsCount.text bodies.length
@@ -80,7 +146,15 @@ $ ->
     i = bodies.push body
 
     body.radius = radius
-    body.actors = [new ArtImage(radius * SCALE, i), new Baumkuchen(radius * SCALE)]
+
+    artImage = new ArtImage(radius * SCALE, i)
+    artImage.addEventListener("mousedown", handleMouseDown)
+    artImage.addEventListener("pressmove", handleMouseMove)
+    artImage.addEventListener("pressup", handleMouseUp)
+    baumkuchen = new Baumkuchen(radius * SCALE)
+
+    body.actors = [artImage, baumkuchen]
+
     canvas.addActors(body)
     canvas.showArtsCount()
 
