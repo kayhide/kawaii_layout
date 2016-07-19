@@ -2,8 +2,6 @@ $ ->
   return unless canvas = $('canvas#tumtum')[0]
 
   arts_count = 10
-  radius_min = 0.10
-  radius_max = 0.35
 
   images = false
   debug = false
@@ -41,6 +39,15 @@ $ ->
 
   mousePoint = new b2Vec2()
   mouseJoint = null
+
+  getRadiusMin = ->
+    parseFloat($('#radius-min').val())
+
+  getRadiusMax = ->
+    parseFloat($('#radius-max').val())
+
+  getBodyRatio = ->
+    parseFloat($('#body-ratio').val())
 
   boundary = do ->
     boundaryDef = new b2BodyDef()
@@ -129,10 +136,10 @@ $ ->
     images_layer.addChild(body.actors[1])
 
   canvas.addArt = ()->
-    radius = Math.random() * (radius_max - radius_min) + radius_min
+    radius = Math.random() * (getRadiusMax() - getRadiusMin()) + getRadiusMin()
     bodyDef = new b2BodyDef
     bodyDef.type = b2Body.b2_dynamicBody
-    fixDef.shape = new b2CircleShape(0.8 * radius)
+    fixDef.shape = new b2CircleShape(getBodyRatio() * radius)
 
     ys = (body.GetPosition().y + body.radius for body in bodies when body.GetPosition().y isnt NaN)
     y = if (ys.length > 0) then Math.max.apply(null, ys) else radius
