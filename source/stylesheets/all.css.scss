@@ -3,9 +3,18 @@
 @import "bootstrap";
 
 canvas {
-    border: solid 1px $gray;
+  border: solid 1px $gray;
 }
 
 .btn + .btn {
-    margin-left: 6px;
+  margin-left: 6px;
+}
+
+.full-height {
+  height: 85vh;
+  overflow-y: scroll;
+}
+
+#tumtum {
+  width: 100%;
 }
