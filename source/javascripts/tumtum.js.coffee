@@ -80,8 +80,11 @@ $ ->
     mouseX = event.stageX
     mouseY = event.stageY
     mousePoint.Set mouseX / SCALE, mouseY / SCALE
-    hitBody = getBodyAtMouse()
+    hitBody = getBodyAtMouse(true)
     if hitBody
+      if hitBody.GetType() == b2Body.b2_staticBody
+        toggleType hitBody
+
       #if joint exists then create
       def = new b2MouseJointDef()
       def.bodyA = boundary
@@ -106,9 +109,22 @@ $ ->
   handleMouseUp = (event) ->
     @onMouseMove = @onMouseUp = null
     if mouseJoint
+      toggleType mouseJoint.GetBodyB()
       world.DestroyJoint mouseJoint
       mouseJoint = false
+
     return
+
+  toggleType = (body) ->
+    if body
+      art = body.actors[0]
+      if body.GetType() == b2Body.b2_staticBody
+        body.SetType b2Body.b2_dynamicBody
+        art.markAsDynamic()
+      else
+        body.SetType b2Body.b2_staticBody
+        art.markAsStatic()
+
 
   getBodyAtMouse = (includeStatic) ->
     body = null
@@ -116,10 +132,11 @@ $ ->
 
     getBodyCallback = (fixture) ->
       shape = fixture.GetShape()
-      if fixture.GetBody().GetType() != b2Body.b2_staticBody or includeStatic
-        inside = shape.TestPoint(fixture.GetBody().GetTransform(), mousePoint)
+      targetBody = fixture.GetBody()
+      if ( targetBody.GetType() != b2Body.b2_staticBody or includeStatic ) and targetBody != boundary
+        inside = shape.TestPoint(targetBody.GetTransform(), mousePoint)
         if inside
-          body = fixture.GetBody()
+          body = targetBody
           return false
       true
 
@@ -154,6 +171,7 @@ $ ->
     body.radius = radius
 
     artImage = new ArtImage(radius * SCALE, i)
+    artImage.markAsDynamic()
     artImage.addEventListener("mousedown", handleMouseDown)
     artImage.addEventListener("pressmove", handleMouseMove)
     artImage.addEventListener("pressup", handleMouseUp)
