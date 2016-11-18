@@ -38,6 +38,7 @@ $ ->
   $artsCount = $('#arts-count')
 
   mousePoint = new b2Vec2()
+  mouseDownPoint = new b2Vec2()
   mouseJoint = null
 
   getRadiusMin = ->
@@ -80,10 +81,10 @@ $ ->
     mouseX = event.stageX
     mouseY = event.stageY
     mousePoint.Set mouseX / SCALE, mouseY / SCALE
+    mouseDownPoint.Set mousePoint.x, mousePoint.y
     hitBody = getBodyAtMouse(true)
     if hitBody
-      if hitBody.GetType() == b2Body.b2_staticBody
-        toggleType hitBody
+      capture(hitBody)
 
       #if joint exists then create
       def = new b2MouseJointDef()
@@ -99,32 +100,44 @@ $ ->
     return
 
   handleMouseMove = (event) ->
-    mouseX = event.stageX
-    mouseY = event.stageY
-    mousePoint.Set mouseX / SCALE, mouseY / SCALE
     if mouseJoint
+      mouseX = event.stageX
+      mouseY = event.stageY
+      mousePoint.Set mouseX / SCALE, mouseY / SCALE
       mouseJoint.SetTarget mousePoint
     return
 
   handleMouseUp = (event) ->
-    @onMouseMove = @onMouseUp = null
     if mouseJoint
-      toggleType mouseJoint.GetBodyB()
+      body = mouseJoint.GetBodyB()
+      if mouseDownPoint.x == mousePoint.x && mouseDownPoint.y == mousePoint.y
+        toggleFrozen(body)
+      release(body)
       world.DestroyJoint mouseJoint
       mouseJoint = false
-
     return
 
-  toggleType = (body) ->
-    if body
-      art = body.actors[0]
-      if body.GetType() == b2Body.b2_staticBody
-        body.SetType b2Body.b2_dynamicBody
-        art.markAsDynamic()
-      else
-        body.SetType b2Body.b2_staticBody
-        art.markAsStatic()
+  capture = (body) ->
+    body.SetType b2Body.b2_dynamicBody
+    body.actors[0].markAsCaptured()
 
+  release = (body) ->
+    if body.frozen
+      body.SetType b2Body.b2_staticBody
+      body.actors[0].markAsStatic()
+    else
+      body.actors[0].markAsDynamic()
+
+  toggleFrozen = (body) ->
+    setFrozen(body, !body.frozen)
+
+  setFrozen = (body, b) ->
+    body.frozen = b
+    art = body.actors[0]
+    if b
+      art.markAsStatic()
+    else
+      art.markAsDynamic()
 
   getBodyAtMouse = (includeStatic) ->
     body = null
@@ -178,6 +191,7 @@ $ ->
     baumkuchen = new Baumkuchen(radius * SCALE)
 
     body.actors = [artImage, baumkuchen]
+    setFrozen(body, false)
 
     canvas.addActors(body)
     canvas.showArtsCount()

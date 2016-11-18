@@ -11,18 +11,20 @@ class ArtImage extends createjs.Container
     @bitmap.scaleX = 2 * @radius / bounds.width
     @bitmap.scaleY = 2 * @radius / bounds.height
 
-    @textOutlineColors = {
-      "dynamic": "#000",
-      "static": "#fff",
-    }
-    @textColors = {
-      "dynamic": "#fff",
-      "static": "#f00",
-    }
-    @alphas = {
-      "dynamic": 1,
+    @textOutlineColors =
+      "dynamic": "#000"
+      "static": "#fff"
+      "captured": "#66f"
+
+    @textColors =
+      "dynamic": "#fff"
+      "static": "#f00"
+      "captured": "#fff"
+
+    @alphas =
+      "dynamic": 1
       "static": 0.5
-    }
+      "captured": 1
 
     @textOutline = new createjs.Text(i, "20px Arial", null)
     @textOutline.outline = 4
@@ -37,6 +39,7 @@ class ArtImage extends createjs.Container
 
   markAsDynamic: () => @markAs "dynamic"
   markAsStatic: () => @markAs "static"
+  markAsCaptured: () => @markAs "captured"
   markAs: (type) =>
     @text.color = @textColors[type]
     @textOutline.color = @textOutlineColors[type]
