@@ -1,4 +1,19 @@
 class ArtImage extends createjs.Container
+  textOutlineColors =
+    "dynamic": "#000"
+    "static": "#fff"
+    "captured": "#66f"
+
+  textColors =
+    "dynamic": "#fff"
+    "static": "#f00"
+    "selected": "#0ff"
+
+  alphas =
+    "dynamic": 1
+    "static": 0.5
+    "captured": 1
+
   constructor: (@radius, i)->
     super()
 
@@ -10,21 +25,6 @@ class ArtImage extends createjs.Container
     @bitmap.regY = bounds.height / 2
     @bitmap.scaleX = 2 * @radius / bounds.width
     @bitmap.scaleY = 2 * @radius / bounds.height
-
-    @textOutlineColors =
-      "dynamic": "#000"
-      "static": "#fff"
-      "captured": "#66f"
-
-    @textColors =
-      "dynamic": "#fff"
-      "static": "#f00"
-      "captured": "#fff"
-
-    @alphas =
-      "dynamic": 1
-      "static": 0.5
-      "captured": 1
 
     @textOutline = new createjs.Text(i, "20px Arial", null)
     @textOutline.outline = 4
@@ -40,10 +40,14 @@ class ArtImage extends createjs.Container
   markAsDynamic: () => @markAs "dynamic"
   markAsStatic: () => @markAs "static"
   markAsCaptured: () => @markAs "captured"
+  markAsSelected: () => @markAs "selected"
   markAs: (type) =>
-    @text.color = @textColors[type]
-    @textOutline.color = @textOutlineColors[type]
-    @bitmap.alpha = @alphas[type]
+    if textColors[type]?
+      @text.color = textColors[type]
+    if textOutlineColors[type]?
+      @textOutline.color = textOutlineColors[type]
+    if alphas[type]?
+      @bitmap.alpha = alphas[type]
 
 
 

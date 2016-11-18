@@ -40,6 +40,7 @@ $ ->
   mousePoint = new b2Vec2()
   mouseDownPoint = new b2Vec2()
   mouseJoint = null
+  selectedBody = null
 
   getRadiusMin = ->
     parseFloat($('#radius-min').val())
@@ -76,6 +77,9 @@ $ ->
 
     boundary
 
+  isMouseUnmoved = ->
+    mousePoint? && mouseDownPoint? &&
+    mouseDownPoint?.x == mousePoint.x && mouseDownPoint.y == mousePoint.y
 
   handleMouseDown = (event) ->
     mouseX = event.stageX
@@ -95,8 +99,12 @@ $ ->
       def.maxForce = 1000 * hitBody.GetMass()
       def.dampingRatio = 0
       mouseJoint = world.CreateJoint(def)
-
       hitBody.SetAwake true
+
+      setTimeout ->
+        if mouseJoint? && isMouseUnmoved()
+          handleMouseLongPress()
+      , 500
     return
 
   handleMouseMove = (event) ->
@@ -110,11 +118,17 @@ $ ->
   handleMouseUp = (event) ->
     if mouseJoint
       body = mouseJoint.GetBodyB()
-      if mouseDownPoint.x == mousePoint.x && mouseDownPoint.y == mousePoint.y
-        toggleFrozen(body)
+      if isMouseUnmoved()
+        select(body)
       release(body)
       world.DestroyJoint mouseJoint
-      mouseJoint = false
+      mouseJoint = null
+    return
+
+  handleMouseLongPress = () ->
+    if mouseJoint
+      body = mouseJoint.GetBodyB()
+      toggleFrozen(body)
     return
 
   capture = (body) ->
@@ -127,6 +141,16 @@ $ ->
       body.actors[0].markAsStatic()
     else
       body.actors[0].markAsDynamic()
+    if selectedBody == body
+      body.actors[0].markAsSelected()
+
+  select = (body) ->
+    last = selectedBody
+    selectedBody = body
+    if last?
+      release(last)
+    if selectedBody?
+      selectedBody.actors[0].markAsSelected()
 
   toggleFrozen = (body) ->
     setFrozen(body, !body.frozen)
