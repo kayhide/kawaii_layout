@@ -37,8 +37,6 @@ $ ->
 
   $artsCount = $('#arts-count')
 
-  mousePoint = new b2Vec2()
-  mouseDownPoint = new b2Vec2()
   mouseJoint = null
   selectedBody = null
 
@@ -77,16 +75,11 @@ $ ->
 
     boundary
 
-  isMouseUnmoved = ->
-    mousePoint? && mouseDownPoint? &&
-    mouseDownPoint?.x == mousePoint.x && mouseDownPoint.y == mousePoint.y
+  gesture = new Gesture
+  gesture.setScale(SCALE)
 
-  handleMouseDown = (event) ->
-    mouseX = event.stageX
-    mouseY = event.stageY
-    mousePoint.Set mouseX / SCALE, mouseY / SCALE
-    mouseDownPoint.Set mousePoint.x, mousePoint.y
-    hitBody = getBodyAtMouse(true)
+  gesture.on 'mousedown', ->
+    hitBody = getBodyAtMouse(true, gesture.mousePoint)
     if hitBody
       capture(hitBody)
 
@@ -94,38 +87,30 @@ $ ->
       def = new b2MouseJointDef()
       def.bodyA = boundary
       def.bodyB = hitBody
-      def.target = mousePoint
+      def.target = gesture.mousePoint
       def.collideConnected = true
       def.maxForce = 1000 * hitBody.GetMass()
       def.dampingRatio = 0
       mouseJoint = world.CreateJoint(def)
       hitBody.SetAwake true
-
-      setTimeout ->
-        if mouseJoint? && isMouseUnmoved()
-          handleMouseLongPress()
-      , 500
     return
 
-  handleMouseMove = (event) ->
+  gesture.on 'pressmove', ->
     if mouseJoint
-      mouseX = event.stageX
-      mouseY = event.stageY
-      mousePoint.Set mouseX / SCALE, mouseY / SCALE
-      mouseJoint.SetTarget mousePoint
+      mouseJoint.SetTarget gesture.mousePoint
     return
 
-  handleMouseUp = (event) ->
+  gesture.on 'pressup', ->
     if mouseJoint
       body = mouseJoint.GetBodyB()
-      if isMouseUnmoved()
+      if !gesture.isMoved
         select(body)
       release(body)
       world.DestroyJoint mouseJoint
       mouseJoint = null
     return
 
-  handleMouseLongPress = () ->
+  gesture.on 'longpress', ->
     if mouseJoint
       body = mouseJoint.GetBodyB()
       toggleFrozen(body)
@@ -163,7 +148,7 @@ $ ->
     else
       art.markAsDynamic()
 
-  getBodyAtMouse = (includeStatic) ->
+  getBodyAtMouse = (includeStatic, mousePoint) ->
     body = null
     aabb = new b2AABB()
 
@@ -209,9 +194,7 @@ $ ->
 
     artImage = new ArtImage(radius * SCALE, i)
     artImage.markAsDynamic()
-    artImage.addEventListener("mousedown", handleMouseDown)
-    artImage.addEventListener("pressmove", handleMouseMove)
-    artImage.addEventListener("pressup", handleMouseUp)
+    gesture.attach(artImage)
     baumkuchen = new Baumkuchen(radius * SCALE)
 
     body.actors = [artImage, baumkuchen]
