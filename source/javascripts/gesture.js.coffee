@@ -9,6 +9,10 @@ class Gesture extends Object
     @listeners = {}
     @isMoved = false
     @isLongPressed = false
+    @event = null
+
+  shiftKey: =>
+    @event?.nativeEvent?.shiftKey
 
   setScale: (scale)=>
     @scale = scale
@@ -23,6 +27,7 @@ class Gesture extends Object
     @listeners[e].push(fn)
 
   handleMouseDown: (event)=>
+    @event = event
     @mousePoint.Set event.stageX / @scale, event.stageY / @scale
     @mouseDownPoint.Set @mousePoint.x, @mousePoint.y
     @isMoved = false
@@ -35,12 +40,14 @@ class Gesture extends Object
     return
 
   handleMouseMove: (event)=>
+    @event = event
     @mousePoint.Set event.stageX / @scale, event.stageY / @scale
     @isMoved = true
     fn() for fn in @listeners['pressmove'] ? []
     return
 
   handleMouseUp: (event) =>
+    @event = event
     fn() for fn in @listeners['pressup'] ? []
     return
 

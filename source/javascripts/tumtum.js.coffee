@@ -81,18 +81,22 @@ $ ->
   gesture.on 'mousedown', ->
     hitBody = getBodyAtMouse(true, gesture.mousePoint)
     if hitBody
-      capture(hitBody)
+      if gesture.shiftKey() && selectedBody? && selectedBody != hitBody
+        swap selectedBody, hitBody
+      else
+        capture(hitBody)
+        select(hitBody)
 
-      #if joint exists then create
-      def = new b2MouseJointDef()
-      def.bodyA = boundary
-      def.bodyB = hitBody
-      def.target = gesture.mousePoint
-      def.collideConnected = true
-      def.maxForce = 1000 * hitBody.GetMass()
-      def.dampingRatio = 0
-      mouseJoint = world.CreateJoint(def)
-      hitBody.SetAwake true
+        #if joint exists then create
+        def = new b2MouseJointDef()
+        def.bodyA = boundary
+        def.bodyB = hitBody
+        def.target = gesture.mousePoint
+        def.collideConnected = true
+        def.maxForce = 1000 * hitBody.GetMass()
+        def.dampingRatio = 0
+        mouseJoint = world.CreateJoint(def)
+        hitBody.SetAwake true
     return
 
   gesture.on 'pressmove', ->
@@ -103,8 +107,6 @@ $ ->
   gesture.on 'pressup', ->
     if mouseJoint
       body = mouseJoint.GetBodyB()
-      if !gesture.isMoved
-        select(body)
       release(body)
       world.DestroyJoint mouseJoint
       mouseJoint = null
@@ -114,6 +116,14 @@ $ ->
     if mouseJoint
       body = mouseJoint.GetBodyB()
       toggleFrozen(body)
+    return
+
+  swap = (body1, body2) ->
+    p1 = new b2Vec2(body1.GetPosition().x, body1.GetPosition().y)
+    body1.SetPosition(body2.GetPosition())
+    body2.SetPosition(p1)
+    body1.SetAwake true
+    body2.SetAwake true
     return
 
   capture = (body) ->
@@ -132,7 +142,7 @@ $ ->
   select = (body) ->
     last = selectedBody
     selectedBody = body
-    if last?
+    if last? && last != selectedBody
       release(last)
     if selectedBody?
       selectedBody.actors[0].markAsSelected()
