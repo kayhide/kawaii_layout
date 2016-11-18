@@ -14,6 +14,9 @@ class Gesture extends Object
   shiftKey: =>
     @event?.nativeEvent?.shiftKey
 
+  altKey: =>
+    @event?.nativeEvent?.altKey
+
   setScale: (scale)=>
     @scale = scale
 

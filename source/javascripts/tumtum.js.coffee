@@ -82,7 +82,10 @@ $ ->
     hitBody = getBodyAtMouse(true, gesture.mousePoint)
     if hitBody
       if gesture.shiftKey() && selectedBody? && selectedBody != hitBody
-        swap selectedBody, hitBody
+        swapIndices selectedBody, hitBody
+        select hitBody
+      else if gesture.altKey() && selectedBody? && selectedBody != hitBody
+        swapPositions selectedBody, hitBody
       else
         capture(hitBody)
         select(hitBody)
@@ -118,12 +121,20 @@ $ ->
       toggleFrozen(body)
     return
 
-  swap = (body1, body2) ->
+  swapPositions = (body1, body2)->
     p1 = new b2Vec2(body1.GetPosition().x, body1.GetPosition().y)
     body1.SetPosition(body2.GetPosition())
     body2.SetPosition(p1)
     body1.SetAwake true
     body2.SetAwake true
+
+  swapIndices = (body1, body2)->
+    i1 = bodies.indexOf body1
+    i2 = bodies.indexOf body2
+    bodies[i2] = body1
+    body1.actors[0].updateIndex(i2 + 1)
+    bodies[i1] = body2
+    body2.actors[0].updateIndex(i1 + 1)
     return
 
   capture = (body) ->

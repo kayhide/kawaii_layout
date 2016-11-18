@@ -20,6 +20,8 @@ class ArtImage extends createjs.Container
     src = ArtImages[ArtImages.length * Math.random() | 0]
     bounds = new createjs.Rectangle(0, 0, 150, 150)
 
+    @index = i
+
     @bitmap = new createjs.Bitmap(src)
     @bitmap.regX = bounds.width / 2
     @bitmap.regY = bounds.height / 2
@@ -37,11 +39,21 @@ class ArtImage extends createjs.Container
 
     @addChild @bitmap, @textOutline, @text
 
-  markAsDynamic: () => @markAs "dynamic"
-  markAsStatic: () => @markAs "static"
-  markAsCaptured: () => @markAs "captured"
-  markAsSelected: () => @markAs "selected"
-  markAs: (type) =>
+  updateIndex: (i)=>
+    @index = i
+    @textOutline.text = @index
+    textBounds = @textOutline.getBounds()
+    @textOutline.x = -textBounds.width / 2
+    @textOutline.y = -textBounds.height / 2
+    @text.text = @index
+    @text.x = @textOutline.x
+    @text.y = @textOutline.y
+
+  markAsDynamic: => @markAs "dynamic"
+  markAsStatic: => @markAs "static"
+  markAsCaptured: => @markAs "captured"
+  markAsSelected: => @markAs "selected"
+  markAs: (type)=>
     if textColors[type]?
       @text.color = textColors[type]
     if textOutlineColors[type]?
